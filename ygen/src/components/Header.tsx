@@ -22,8 +22,10 @@ const Header: React.FC = () => {
     <header className={`${scrolled ? 'py-4 bg-black/95' : 'py-6 bg-black/80'} backdrop-blur-sm text-white px-4 sticky top-0 z-50 border-b border-gray-800/50 shadow-lg transition-all duration-300`}>
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center">
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-500 via-purple-400 to-blue-500 hover:scale-105 transition-transform duration-300 cursor-pointer">
-            YGen
+          <h1 className="text-1xl font-bold hover:scale-105 transition-transform duration-300 cursor-pointer flex flex-col items-center">
+            <span className="text-white-500"><span className="bg-gray-500/30 px-0.5">{`<`}</span>code<span>{`>`}</span></span>
+            <span className="text-red-500">{`{y}`}</span>
+            <span className="text-white-500">gen</span>
           </h1>
         </div>
         <nav className="hidden md:flex space-x-8">

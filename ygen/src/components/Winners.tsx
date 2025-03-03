@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 interface EventType {
   id: number;
@@ -24,67 +25,33 @@ interface WinnerType {
 
 const Winners: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<EventType | null>(null);
+  const [completedEvents, setCompletedEvents] = useState<EventType[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const completedEvents: EventType[] = [
-    {
-      id: 1,
-      name: 'UI/UX Design Masterclass',
-      date: 'January 15, 2024',
-      description: 'Learn the principles of effective UI/UX design from industry professionals.',
-      image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=2000&auto=format&fit=crop',
-      category: 'workshop',
-      status: 'completed',
-      winners: [
-        {
-          rank: 1,
-          teamName: 'DesignMasters',
-          projectName: 'EcoTracker App',
-          achievement: 'Best Overall Design'
-        },
-        {
-          rank: 2,
-          teamName: 'UXPioneers',
-          projectName: 'HealthHub Interface',
-          achievement: 'Most Innovative Solution'
-        },
-        {
-          rank: 3,
-          teamName: 'PixelPerfect',
-          projectName: 'SmartHome Dashboard',
-          achievement: 'Best User Experience'
-        }
-      ]
-    },
-    {
-      id: 2,
-      name: 'Code for Change 2024',
-      date: 'January 8-9, 2024',
-      description: '48-hour coding competition to build innovative solutions for social impact.',
-      image: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=2070&auto=format&fit=crop',
-      category: 'hackathon',
-      status: 'completed',
-      winners: [
-        {
-          rank: 1,
-          teamName: 'Team Innovators',
-          projectName: 'EcoTrack',
-          achievement: 'Best Overall Solution'
-        },
-        {
-          rank: 2,
-          teamName: 'Digital Wizards',
-          projectName: 'HealthConnect',
-          achievement: 'Most Technical Innovation'
-        },
-        {
-          rank: 3,
-          teamName: 'Tech Titans',
-          projectName: 'SmartLearn',
-          achievement: 'Best Social Impact'
-        }
-      ]
-    },
-  ];
+  useEffect(() => {
+    const fetchCompletedEvents = async () => {
+      try {
+        setLoading(true);
+        // Assuming your API has a way to fetch completed events
+        // You might need to modify this endpoint based on your actual API structure
+        const response = await axios.get('http://localhost:5000/api/events?status=completed');
+        setCompletedEvents(response.data);
+      } catch (err) {
+        console.error('Error fetching completed events:', err);
+        setError('Failed to load completed events');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCompletedEvents();
+  }, []);
+
+  // If there are no completed events, don't render the section
+  if (completedEvents.length === 0 && !loading) {
+    return null;
+  }
 
   return (
     <section id="winners" className="bg-black text-white py-20 px-4">
@@ -92,38 +59,46 @@ const Winners: React.FC = () => {
         <h2 className="text-4xl font-bold mb-2 text-center">Completed <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500">Events</span></h2>
         <p className="text-xl text-gray-400 mb-16 text-center max-w-3xl mx-auto">Celebrating the achievements of our talented community members</p>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {completedEvents.map((event) => (
-            <div 
-              key={event.id} 
-              className="bg-gray-900 rounded-xl overflow-hidden border border-gray-800 hover:border-purple-500 transition-all duration-300 transform hover:-translate-y-2 cursor-pointer"
-              onClick={() => setSelectedEvent(event)}
-            >
-              <div className="h-48 overflow-hidden">
-                <img 
-                  src={event.image} 
-                  alt={event.name} 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-2xl font-bold">{event.name}</h3>
-                  <span className="px-3 py-1 rounded-full text-xs font-medium bg-purple-900 text-purple-300">
-                    {event.category.charAt(0).toUpperCase() + event.category.slice(1)}
-                  </span>
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+          </div>
+        ) : error ? (
+          <div className="text-red-500 text-center py-10">{error}</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {completedEvents.map((event) => (
+              <div 
+                key={event.id} 
+                className="bg-gray-900 rounded-xl overflow-hidden border border-gray-800 hover:border-purple-500 transition-all duration-300 transform hover:-translate-y-2 cursor-pointer"
+                onClick={() => setSelectedEvent(event)}
+              >
+                <div className="h-48 overflow-hidden">
+                  <img 
+                    src={event.image} 
+                    alt={event.name} 
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-                <p className="text-gray-400 mb-4">{event.description}</p>
-                <div className="flex items-center text-sm text-gray-400">
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                  </svg>
-                  <span>{event.date}</span>
+                <div className="p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-2xl font-bold">{event.name}</h3>
+                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-purple-900 text-purple-300">
+                      {event.category.charAt(0).toUpperCase() + event.category.slice(1)}
+                    </span>
+                  </div>
+                  <p className="text-gray-400 mb-4">{event.description}</p>
+                  <div className="flex items-center text-sm text-gray-400">
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <span>{event.date}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {selectedEvent && (
           <div className="fixed inset-0 backdrop-blur-sm bg-black bg-opacity-75 flex items-center justify-center p-4 z-50" onClick={() => setSelectedEvent(null)}>

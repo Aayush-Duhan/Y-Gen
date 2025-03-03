@@ -1,15 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { EventType, fetchEvents } from '../api/eventsApi';
 
-interface EventType {
-  id: number;
-  name: string;
-  date: string;
-  time: string;
-  location: string;
-  type: 'online' | 'offline';
-  description: string;
-  image: string;
-  category: 'event' | 'workshop' | 'hackathon';
+interface ApiError {
+  message: string;
 }
 
 interface TimeLeft {
@@ -30,85 +23,46 @@ const EventSection: React.FC<EventSectionProps> = ({ category, title, subtitle }
   const [timeLeft, setTimeLeft] = useState<TimeLeft | null>(null);
   const [activeCategory, setActiveCategory] = useState<'all' | 'online' | 'offline'>('all');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [events, setEvents] = useState<EventType[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<ApiError | null>(null);
+  
+  // Fetch events from API
+  useEffect(() => {
+    const getEvents = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await fetchEvents(category, activeCategory !== 'all' ? activeCategory : undefined);
+        
+        // Filter out past events, only show upcoming events
+        const now = new Date().getTime();
+        const upcoming: EventType[] = [];
+        
+        data.forEach((event: EventType) => {
+          const dates = event.date.split('-');
+          const endDate = dates.length > 1 ? dates[1].trim() : dates[0].trim();
+          const eventDateTime = new Date(`${endDate} ${event.time.split(' - ')[1] || event.time.split(' - ')[0]}`).getTime();
+          
+          // Only include upcoming events
+          if (eventDateTime > now) {
+            upcoming.push(event);
+          }
+        });
+        
+        setEvents(upcoming);
+      } catch (err) {
+        console.error('Failed to fetch events:', err);
+        setError({ message: 'Failed to load events. Please try again later.' });
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const allEvents = [
-    // Events
-    {
-      id: 1,
-      name: 'Web Development Workshop',
-      date: 'March 15, 2025',
-      time: '2:00 PM - 5:00 PM',
-      location: 'Tech Lab, Building B',
-      type: 'offline',
-      description: 'Hands-on workshop on building modern web applications with React and Node.js.',
-      image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070&auto=format&fit=crop',
-      category: 'event'
-    },
-    {
-      id: 2,
-      name: 'UI/UX Design Masterclass',
-      date: 'March 22, 2025',
-      time: '3:00 PM - 6:00 PM',
-      location: 'Online (Zoom)',
-      type: 'online',
-      description: 'Learn the principles of effective UI/UX design from industry professionals.',
-      image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=2000&auto=format&fit=crop',
-      category: 'event'
-    },
-    // Workshops
-    {
-      id: 3,
-      name: 'Mobile App Development',
-      date: 'March 25, 2025',
-      time: '2:00 PM - 6:00 PM',
-      location: 'Tech Hub, Room 301',
-      type: 'offline',
-      description: 'Intensive workshop on building cross-platform mobile applications using React Native.',
-      image: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=2070&auto=format&fit=crop',
-      category: 'workshop'
-    },
-    {
-      id: 4,
-      name: 'Cloud Computing Workshop',
-      date: 'March 28, 2025',
-      time: '3:00 PM - 5:00 PM',
-      location: 'Online (Microsoft Teams)',
-      type: 'online',
-      description: 'Learn about cloud architecture and deployment using AWS and Azure.',
-      image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop',
-      category: 'workshop'
-    },
-    // Hackathons
-    {
-      id: 5,
-      name: 'Code for Change 2025',
-      date: 'April 8-9, 2025',
-      time: '9:00 AM - 9:00 PM',
-      location: 'Main Auditorium',
-      type: 'offline',
-      description: '48-hour coding competition to build innovative solutions for social impact.',
-      image: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=2070&auto=format&fit=crop',
-      category: 'hackathon'
-    },
-    {
-      id: 6,
-      name: 'Virtual Innovation Challenge',
-      date: 'April 15-16, 2025',
-      time: '10:00 AM - 6:00 PM',
-      location: 'Online (Discord)',
-      type: 'online',
-      description: 'Global virtual hackathon focused on emerging technologies and innovation.',
-      image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=2070&auto=format&fit=crop',
-      category: 'hackathon'
-    },
-  ];
+    getEvents();
+  }, [category, activeCategory]);
 
-  const events = allEvents.filter(event => event.category === category);
-
-  const filteredEvents = events.filter(event => {
-    if (activeCategory === 'all') return true;
-    return event.type === activeCategory;
-  });
+  // Only display upcoming events from API data
 
   const openModal = (event: EventType) => {
     setSelectedEvent(event);
@@ -198,8 +152,23 @@ const EventSection: React.FC<EventSectionProps> = ({ category, title, subtitle }
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {filteredEvents.length > 0 ? (
-            filteredEvents.map((event) => (
+          {loading ? (
+            <div className="col-span-2 text-center py-20">
+              <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-purple-500 border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" role="status">
+                <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Loading...</span>
+              </div>
+              <p className="mt-4 text-gray-400">Loading events...</p>
+            </div>
+          ) : error ? (
+            <div className="col-span-2 text-center py-10">
+              <svg className="w-16 h-16 mx-auto text-red-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <h3 className="text-xl font-medium text-gray-400">{error.message}</h3>
+              <p className="text-gray-500 mt-2">Please try again later</p>
+            </div>
+          ) : events.length > 0 ? (
+            events.map((event) => (
               <div 
                 key={event.id} 
                 className="bg-gray-900 rounded-xl overflow-hidden border border-gray-800 hover:border-purple-500 transition-all duration-300 transform hover:-translate-y-2 cursor-pointer group"
@@ -209,7 +178,7 @@ const EventSection: React.FC<EventSectionProps> = ({ category, title, subtitle }
                   <img 
                     src={event.image} 
                     alt={event.name} 
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-0 group-hover:opacity-70 transition-opacity duration-300"></div>
                 </div>
@@ -253,7 +222,7 @@ const EventSection: React.FC<EventSectionProps> = ({ category, title, subtitle }
               <svg className="w-16 h-16 mx-auto text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
-              <h3 className="text-xl font-medium text-gray-400">No {activeCategory} {category} found</h3>
+              <h3 className="text-xl font-medium text-gray-400">No {activeCategory !== 'all' ? activeCategory : ''} {category} found</h3>
               <p className="text-gray-500 mt-2">Try selecting a different category</p>
             </div>
           )}
@@ -346,7 +315,7 @@ const EventSection: React.FC<EventSectionProps> = ({ category, title, subtitle }
                       <span>{selectedEvent.location}</span>
                     </div>
                   </div>
-                  <button className="mt-6 w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full text-white font-medium hover:opacity-90 transition-opacity">
+                  <button className="mt-6 w-full py-2 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full text-white font-medium hover:opacity-90 transition-opacity">
                     Register Now
                   </button>
                 </div>
