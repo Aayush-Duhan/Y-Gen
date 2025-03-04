@@ -60,29 +60,29 @@ const MicroGroups: React.FC = () => {
     <section id="micro-groups" className="bg-gray-900 text-white py-20 px-4 relative overflow-hidden">
       {/* Background elements */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent opacity-70"></div>
-      <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-900/20 rounded-full blur-3xl"></div>
-      <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-900/20 rounded-full blur-3xl"></div>
+      <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-900/20 rounded-full blur-3xl"></div>
+      <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-red-900/20 rounded-full blur-3xl"></div>
       
       <div className="container mx-auto relative z-10">
-        <h2 className="text-4xl font-bold mb-2 text-center">Our <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500">Micro Groups</span></h2>
+        <h2 className="text-4xl font-bold mb-2 text-center">Our <span className="bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-red-600">Micro Groups</span></h2>
         <p className="text-xl text-gray-400 mb-16 text-center max-w-3xl mx-auto">Explore the different areas where you can learn, grow, and contribute</p>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {microGroups.map((group) => (
             <div 
               key={group.id} 
-              className="bg-black p-8 rounded-xl border border-gray-800 hover:border-purple-500 transition-all duration-300 transform hover:-translate-y-2 relative overflow-hidden group"
+              className="bg-black p-8 rounded-xl border border-gray-800 hover:border-red-500 transition-all duration-300 transform hover:-translate-y-2 relative overflow-hidden group"
               onMouseEnter={() => setHoveredGroup(group.id)}
               onMouseLeave={() => setHoveredGroup(null)}
             >
               {/* Animated background gradient on hover */}
-              <div className={`absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`}></div>
+              <div className={`absolute inset-0 bg-gradient-to-br from-red-900/20 via-red-900/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`}></div>
               
               <div className="flex flex-col items-center text-center relative z-10">
                 <div className="transform transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
                   {group.icon}
                 </div>
-                <h3 className="text-2xl font-bold mb-3 group-hover:text-purple-400 transition-colors duration-300">{group.name}</h3>
+                <h3 className="text-2xl font-bold mb-3 group-hover:text-red-400 transition-colors duration-300">{group.name}</h3>
                 <p className="text-gray-400 group-hover:text-gray-300 transition-colors duration-300">{group.description}</p>
               </div>
             </div>

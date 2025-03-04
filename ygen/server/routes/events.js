@@ -2,12 +2,31 @@ const express = require('express');
 const router = express.Router();
 const Event = require('../models/Event');
 
+// Helper function to parse date and time string
+const parseDateTime = (dateStr, timeStr) => {
+  try {
+    // For date ranges, take the end date
+    const dates = dateStr.split('-');
+    const endDate = dates[dates.length - 1].trim();
+    
+    // Extract end time if there's a range
+    const endTime = timeStr?.split('-')[1]?.trim() || timeStr?.split('-')[0]?.trim() || '11:59 PM';
+    
+    // Create date object
+    const dateTimeStr = `${endDate} ${endTime}`;
+    return new Date(dateTimeStr);
+  } catch (err) {
+    console.error('Error parsing date:', err);
+    return new Date();
+  }
+};
+
 // @route   GET /api/events
 // @desc    Get all events or filter by category
 // @access  Public
 router.get('/', async (req, res) => {
   try {
-    const { category, type } = req.query;
+    const { category, type, status } = req.query;
     let query = {};
     
     // Filter by category if provided
@@ -21,7 +40,27 @@ router.get('/', async (req, res) => {
     }
     
     try {
-      const events = await Event.find(query).sort({ createdAt: -1 });
+      let events = await Event.find(query).sort({ createdAt: -1 });
+      
+      // Filter events based on completion status
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Reset time to start of day
+      
+      events = events.filter(event => {
+        try {
+          const eventEndDate = event.endDate || event.startDate;
+          if (status === 'completed') {
+            return eventEndDate < today;
+          } else {
+            // Default to upcoming events
+            return eventEndDate >= today;
+          }
+        } catch (err) {
+          console.error('Error comparing dates:', err);
+          return false;
+        }
+      });
+      
       res.json(events);
     } catch (dbErr) {
       console.log('Database error, using fallback data:', dbErr.message);
@@ -98,7 +137,7 @@ router.get('/', async (req, res) => {
         },
       ];
       
-      // Filter fallback data based on query parameters
+      // Filter by category and type
       let filteredEvents = fallbackEvents;
       if (category) {
         filteredEvents = filteredEvents.filter(event => event.category === category);
@@ -106,6 +145,25 @@ router.get('/', async (req, res) => {
       if (type) {
         filteredEvents = filteredEvents.filter(event => event.type === type);
       }
+      
+      // Filter based on completion status
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Reset time to start of day
+      
+      filteredEvents = filteredEvents.filter(event => {
+        try {
+          const eventEndDate = parseDateTime(event.date, event.time);
+          if (status === 'completed') {
+            return eventEndDate < today;
+          } else {
+            // Default to upcoming events
+            return eventEndDate >= today;
+          }
+        } catch (err) {
+          console.error('Error comparing dates:', err);
+          return false;
+        }
+      });
       
       res.json(filteredEvents);
     }
@@ -141,15 +199,13 @@ router.get('/:id', async (req, res) => {
 // @access  Public (would typically be Private with auth)
 router.post('/', async (req, res) => {
   try {
+    const { startDate, endDate, ...otherData } = req.body;
+    
+    // Convert date strings to Date objects
     const newEvent = new Event({
-      name: req.body.name,
-      date: req.body.date,
-      time: req.body.time,
-      location: req.body.location,
-      type: req.body.type,
-      description: req.body.description,
-      image: req.body.image,
-      category: req.body.category
+      ...otherData,
+      startDate: new Date(startDate),
+      endDate: endDate ? new Date(endDate) : undefined
     });
     
     const event = await newEvent.save();
@@ -171,10 +227,19 @@ router.put('/:id', async (req, res) => {
       return res.status(404).json({ msg: 'Event not found' });
     }
     
+    const { startDate, endDate, ...otherData } = req.body;
+    
+    // Convert date strings to Date objects
+    const updateData = {
+      ...otherData,
+      startDate: startDate ? new Date(startDate) : event.startDate,
+      endDate: endDate ? new Date(endDate) : event.endDate
+    };
+    
     // Update fields
     const updatedEvent = await Event.findByIdAndUpdate(
       req.params.id,
-      { $set: req.body },
+      { $set: updateData },
       { new: true }
     );
     

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import { AuthService } from '../services/api';
 
 const AuthContext = createContext();
 
@@ -21,21 +21,13 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }, []);
 
-  // For demo purposes, we'll use a simple login function
-  // In a real app, you would connect this to your backend
+  // Login function that uses the AuthService
   async function login(email, password) {
     setError('');
     try {
-      // For demo, we'll accept any email with admin@ygen.com and password 'admin123'
-      // In a real app, this would be an API call to your backend
-      if (email === 'admin@ygen.com' && password === 'admin123') {
-        const user = { email, name: 'Admin User' };
-        setCurrentUser(user);
-        localStorage.setItem('adminUser', JSON.stringify(user));
-        return user;
-      } else {
-        throw new Error('Invalid email or password');
-      }
+      const user = await AuthService.login(email, password);
+      setCurrentUser(user);
+      return user;
     } catch (err) {
       setError(err.message);
       throw err;
@@ -44,7 +36,7 @@ export function AuthProvider({ children }) {
 
   function logout() {
     setCurrentUser(null);
-    localStorage.removeItem('adminUser');
+    AuthService.logout();
   }
 
   const value = {

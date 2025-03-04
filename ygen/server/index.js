@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const winnersRoutes = require('./routes/winners');
 
 // Load environment variables
 dotenv.config();
@@ -28,6 +29,7 @@ mongoose.connect(MONGODB_URI)
 
 // Define routes
 app.use('/api/events', require('./routes/events'));
+app.use('/api/winners', winnersRoutes);
 
 // Default route
 app.get('/', (req, res) => {

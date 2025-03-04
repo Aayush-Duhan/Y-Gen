@@ -2,9 +2,7 @@ import Header from './components/Header'
 import Hero from './components/Hero'
 import MicroGroups from './components/Departments'
 import EventSection from './components/Events'
-import Footer from './components/Footer'
 import Leadership from './components/Leadership'
-import Winners from './components/Winners'
 
 function App() {
   return (
@@ -14,7 +12,7 @@ function App() {
         <Hero />
         <MicroGroups />
         <Leadership />
-        <Winners />
+        
         <EventSection 
           category="event"
           title="Upcoming"
@@ -31,7 +29,6 @@ function App() {
           subtitle="Showcase your skills and compete in our coding challenges"
         />
       </main>
-      <Footer />
     </div>
   )
 }

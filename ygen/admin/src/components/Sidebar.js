@@ -53,7 +53,7 @@ const Logo = () => (
         }
       }}
     >
-      y.gen<span style={{ color: '#FF2D6F' }}>Admin</span>
+      Code<span style={{ color: '#d60d28' }}>-Y-</span>gen
     </Typography>
   </Box>
 );

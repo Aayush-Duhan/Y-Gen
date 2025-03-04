@@ -29,26 +29,22 @@ const Header: React.FC = () => {
           </h1>
         </div>
         <nav className="hidden md:flex space-x-8">
-          <a href="#hero" className="relative py-2 hover:text-purple-400 transition-colors duration-300 group">
+          <a href="#hero" className="relative py-2 hover:text-red-400 transition-colors duration-300 group">
             About
-            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 transform scale-x-0 transition-transform duration-300 group-hover:scale-x-100"></span>
+            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-red-500 to-red-700 transform scale-x-0 transition-transform duration-300 group-hover:scale-x-100"></span>
           </a>
-          <a href="#micro-groups" className="relative py-2 hover:text-purple-400 transition-colors duration-300 group">
+          <a href="#micro-groups" className="relative py-2 hover:text-red-400 transition-colors duration-300 group">
             Micro Groups
-            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 transform scale-x-0 transition-transform duration-300 group-hover:scale-x-100"></span>
+            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-red-500 to-red-700 transform scale-x-0 transition-transform duration-300 group-hover:scale-x-100"></span>
           </a>
-          <a href="#event" className="relative py-2 hover:text-purple-400 transition-colors duration-300 group">
+          <a href="#event" className="relative py-2 hover:text-red-400 transition-colors duration-300 group">
             Events
-            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 transform scale-x-0 transition-transform duration-300 group-hover:scale-x-100"></span>
-          </a>
-          <a href="#contact" className="relative py-2 hover:text-purple-400 transition-colors duration-300 group">
-            Contact
-            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 transform scale-x-0 transition-transform duration-300 group-hover:scale-x-100"></span>
+            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-red-500 to-red-700 transform scale-x-0 transition-transform duration-300 group-hover:scale-x-100"></span>
           </a>
         </nav>
         <div className="md:hidden">
           <button 
-            className="text-white focus:outline-none hover:text-purple-400 transition-colors duration-300"
+            className="text-white focus:outline-none hover:text-red-400 transition-colors duration-300"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -67,36 +63,29 @@ const Header: React.FC = () => {
 
       {/* Mobile menu */}
       {isMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-gray-900/95 backdrop-blur-md border-b border-gray-800 shadow-xl animate-fadeIn">
+        <div className="md:hidden absolute top-full left-0 right-0 bg-gray-900/95 backdrop-blur-md border-b border-red-800 shadow-xl animate-fadeIn">
           <div className="container mx-auto py-4 px-4">
             <nav className="flex flex-col space-y-4">
               <a 
                 href="#hero" 
-                className="py-2 px-4 hover:bg-gray-800 rounded-lg transition-colors duration-300"
+                className="py-2 px-4 hover:bg-red-900/30 rounded-lg transition-colors duration-300"
                 onClick={() => setIsMenuOpen(false)}
               >
                 About
               </a>
               <a 
                 href="#micro-groups" 
-                className="py-2 px-4 hover:bg-gray-800 rounded-lg transition-colors duration-300"
+                className="py-2 px-4 hover:bg-red-900/30 rounded-lg transition-colors duration-300"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Micro Groups
               </a>
               <a 
                 href="#event" 
-                className="py-2 px-4 hover:bg-gray-800 rounded-lg transition-colors duration-300"
+                className="py-2 px-4 hover:bg-red-900/30 rounded-lg transition-colors duration-300"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Events
-              </a>
-              <a 
-                href="#contact" 
-                className="py-2 px-4 hover:bg-gray-800 rounded-lg transition-colors duration-300"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Contact
               </a>
             </nav>
           </div>

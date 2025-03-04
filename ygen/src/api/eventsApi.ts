@@ -1,24 +1,18 @@
 import axios from 'axios';
+import type { EventType } from '../types/event';
 
 const API_URL = 'http://localhost:5000/api';
 
-export interface EventType {
-  _id?: string;
-  id?: number;
-  name: string;
-  date: string;
-  time: string;
-  location: string;
-  type: 'online' | 'offline';
-  description: string;
-  image: string;
-  category: 'event' | 'workshop' | 'hackathon';
-}
+export type { EventType };
 
-export const fetchEvents = async (category?: string, type?: string) => {
+export const fetchEvents = async (category?: string, type?: string, status?: 'upcoming' | 'completed') => {
   try {
     let url = `${API_URL}/events`;
     const params: Record<string, string> = {};
+    
+    if (status) {
+      params.status = status;
+    }
     
     if (category) {
       params.category = category;
@@ -72,6 +66,16 @@ export const deleteEvent = async (id: string) => {
     return response.data;
   } catch (error) {
     console.error('Error deleting event:', error);
+    throw error;
+  }
+};
+
+export const fetchWinners = async (eventId: string) => {
+  try {
+    const response = await axios.get(`${API_URL}/winners/${eventId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching winners:', error);
     throw error;
   }
 };
